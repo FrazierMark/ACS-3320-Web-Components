@@ -22,7 +22,7 @@ To use this web component, simply include it in your project
 <script src="path/to/your/canvas-component.js"></script>
 ```
 
-You can customize the component using attributes.
+You can customize the component colors using attributes.
 
 ```html
 <canvas-background color_a="#6e00b3" color_b="#c1f376"></canvas-background>
