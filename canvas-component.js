@@ -1,14 +1,13 @@
 import * as THREE from 'https://cdn.skypack.dev/three@0.129.0/build/three.module.js';
 import { OrbitControls } from 'https://cdn.skypack.dev/three@0.129.0/examples/jsm/controls/OrbitControls.js';
-import vertexShader from './shaders/background/vertexShader.js';
-import fragmentShader from './shaders/background/fragmentShader.js';
+import vertexShader from './shaders/vertexShader.js';
+import fragmentShader from './shaders/fragmentShader.js';
 
 class CanvasBackground extends HTMLElement {
 	constructor() {
 		super();
 		this.attachShadow({ mode: 'open' });
 
-    // Default negative z-index
     const style = document.createElement('style');
         style.textContent = `
             :host {
@@ -41,6 +40,7 @@ class CanvasBackground extends HTMLElement {
 		this.orbitControls.enableDamping = true;
 		this.renderer.setClearColor(0xffffff, 1);
 		this.animate = this.animate.bind(this);
+		window.addEventListener('resize', this.handleResize.bind(this));
 		this.backgroundMaterial = null;
 	}
 
@@ -55,22 +55,31 @@ class CanvasBackground extends HTMLElement {
 		window.requestAnimationFrame(this.animate);
 	}
 
+	handleResize() {
+		this.sizes.width = window.innerWidth;
+		this.sizes.height = window.innerHeight;
+
+		this.camera.aspect = this.sizes.width / this.sizes.height;
+
+		this.renderer.setSize(this.sizes.width, this.sizes.height);
+		this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+}
+
 	connectedCallback() {
 		this.renderer.setSize(this.sizes.width, this.sizes.height);
 		this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 		this.shadowRoot.appendChild(this.renderer.domElement);
 		this.camera.position.set(0, 0.45, 0);
+		this.camera.aspect = this.sizes.width / this.sizes.height
+		this.camera.updateProjectionMatrix()
 
 
-		//Plane Geometry
 		const backgroundGeometry = new THREE.PlaneGeometry(2, 2, 256, 256);
 
-		// Plane Material
 		const colorA = this.getAttribute('color_a');
 		const colorB = this.getAttribute('color_b');
 
-    // Plane Material
 		this.backgroundMaterial = new THREE.ShaderMaterial({
 			vertexShader: vertexShader,
 			fragmentShader: fragmentShader,
@@ -83,7 +92,7 @@ class CanvasBackground extends HTMLElement {
 			},
 		});
 
-		// Add Mesh, background = new THREE.Mesh(planeGeo, planeMaterial)
+
 		const background = new THREE.Mesh(
 			backgroundGeometry,
 			this.backgroundMaterial
