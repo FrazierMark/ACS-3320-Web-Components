@@ -8,8 +8,8 @@ class CanvasBackground extends HTMLElement {
 		super();
 		this.attachShadow({ mode: 'open' });
 
-    const style = document.createElement('style');
-        style.textContent = `
+		const style = document.createElement('style');
+		style.textContent = `
             :host {
                 position: fixed;
                 z-index: -1;
@@ -17,7 +17,7 @@ class CanvasBackground extends HTMLElement {
                 left: 0;
             }
         `;
-        this.shadowRoot.appendChild(style);
+		this.shadowRoot.appendChild(style);
 
 		this.sizes = {
 			width: window.innerWidth,
@@ -63,7 +63,7 @@ class CanvasBackground extends HTMLElement {
 
 		this.renderer.setSize(this.sizes.width, this.sizes.height);
 		this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-}
+	}
 
 	connectedCallback() {
 		this.renderer.setSize(this.sizes.width, this.sizes.height);
@@ -71,14 +71,15 @@ class CanvasBackground extends HTMLElement {
 
 		this.shadowRoot.appendChild(this.renderer.domElement);
 		this.camera.position.set(0, 0.45, 0);
-		this.camera.aspect = this.sizes.width / this.sizes.height
-		this.camera.updateProjectionMatrix()
-
+		this.camera.aspect = this.sizes.width / this.sizes.height;
+		this.camera.updateProjectionMatrix();
 
 		const backgroundGeometry = new THREE.PlaneGeometry(2, 2, 256, 256);
 
 		const colorA = this.getAttribute('color_a');
 		const colorB = this.getAttribute('color_b');
+		const strength = parseFloat(this.getAttribute('strength'));
+		const density = parseFloat(this.getAttribute('density'));
 
 		this.backgroundMaterial = new THREE.ShaderMaterial({
 			vertexShader: vertexShader,
@@ -87,11 +88,10 @@ class CanvasBackground extends HTMLElement {
 				u_time: { value: 0 },
 				u_colorA: { value: new THREE.Color(colorA) },
 				u_colorB: { value: new THREE.Color(colorB) },
-				u_noiseStrength: { value: 0.13 },
-				u_noiseDensity: { value: 2.9 },
+				u_noiseStrength: { value: strength },
+				u_noiseDensity: { value: density },
 			},
 		});
-
 
 		const background = new THREE.Mesh(
 			backgroundGeometry,
